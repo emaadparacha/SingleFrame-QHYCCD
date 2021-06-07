@@ -5,6 +5,7 @@
 #include <string.h>
 #include <fitsio.h>
 #include "qhyccd.h"
+#include <ctime>
 
 using namespace std;
 
@@ -433,7 +434,11 @@ int main(int argc, char *argv[])
     int status = 0;
     long naxes[2] = {roiSizeX, roiSizeY};
 
-    const char *fitsfilename = "first_try.fits";
+    string fitname = "qhyImg_" + to_string(time(0)) + ".fits";
+
+    const char *fitsfilename = fitname.c_str();
+
+    remove(fitsfilename); //Remove if exists already
 
     fits_create_file(&fptr, fitsfilename, &status);
     fits_create_img(fptr, USHORT_IMG, 2, naxes, &status);
