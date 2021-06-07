@@ -10,65 +10,60 @@ using namespace std;
 
 void SDKVersion()
 {
-  unsigned int  YMDS[4];
+  unsigned int YMDS[4];
   unsigned char sVersion[80];
 
-  memset ((char *)sVersion,0x00,sizeof(sVersion));
-  GetQHYCCDSDKVersion(&YMDS[0],&YMDS[1],&YMDS[2],&YMDS[3]);
+  memset((char *)sVersion, 0x00, sizeof(sVersion));
+  GetQHYCCDSDKVersion(&YMDS[0], &YMDS[1], &YMDS[2], &YMDS[3]);
 
-  if ((YMDS[1] < 10)&&(YMDS[2] < 10))
+  if ((YMDS[1] < 10) && (YMDS[2] < 10))
   {
-    sprintf((char *)sVersion,"V20%d0%d0%d_%d\n",YMDS[0],YMDS[1],YMDS[2],YMDS[3]	);
+    sprintf((char *)sVersion, "V20%d0%d0%d_%d\n", YMDS[0], YMDS[1], YMDS[2], YMDS[3]);
   }
-  else if ((YMDS[1] < 10)&&(YMDS[2] > 10))
+  else if ((YMDS[1] < 10) && (YMDS[2] > 10))
   {
-    sprintf((char *)sVersion,"V20%d0%d%d_%d\n",YMDS[0],YMDS[1],YMDS[2],YMDS[3]	);
+    sprintf((char *)sVersion, "V20%d0%d%d_%d\n", YMDS[0], YMDS[1], YMDS[2], YMDS[3]);
   }
-  else if ((YMDS[1] > 10)&&(YMDS[2] < 10))
+  else if ((YMDS[1] > 10) && (YMDS[2] < 10))
   {
-    sprintf((char *)sVersion,"V20%d%d0%d_%d\n",YMDS[0],YMDS[1],YMDS[2],YMDS[3]	);
+    sprintf((char *)sVersion, "V20%d%d0%d_%d\n", YMDS[0], YMDS[1], YMDS[2], YMDS[3]);
   }
   else
   {
-    sprintf((char *)sVersion,"V20%d%d%d_%d\n",YMDS[0],YMDS[1],YMDS[2],YMDS[3]	);
+    sprintf((char *)sVersion, "V20%d%d%d_%d\n", YMDS[0], YMDS[1], YMDS[2], YMDS[3]);
   }
 
-  fprintf(stderr,"QHYCCD SDK Version: %s\n", sVersion);
+  fprintf(stderr, "QHYCCD SDK Version: %s\n", sVersion);
 }
-
 
 void FirmWareVersion(qhyccd_handle *h)
 {
   int i = 0;
-  unsigned char fwv[32],FWInfo[256];
+  unsigned char fwv[32], FWInfo[256];
   unsigned int ret;
-  memset (FWInfo,0x00,sizeof(FWInfo));
-  ret = GetQHYCCDFWVersion(h,fwv);
-  if(ret == QHYCCD_SUCCESS)
+  memset(FWInfo, 0x00, sizeof(FWInfo));
+  ret = GetQHYCCDFWVersion(h, fwv);
+  if (ret == QHYCCD_SUCCESS)
   {
-    if((fwv[0] >> 4) <= 9)
+    if ((fwv[0] >> 4) <= 9)
     {
 
-      sprintf((char *)FWInfo,"Firmware version:20%d_%d_%d\n",((fwv[0] >> 4) + 0x10),
-              (fwv[0]&~0xf0),fwv[1]);
-
+      sprintf((char *)FWInfo, "Firmware version:20%d_%d_%d\n", ((fwv[0] >> 4) + 0x10),
+              (fwv[0] & ~0xf0), fwv[1]);
     }
     else
     {
 
-      sprintf((char *)FWInfo,"Firmware version:20%d_%d_%d\n",(fwv[0] >> 4),
-              (fwv[0]&~0xf0),fwv[1]);
-
+      sprintf((char *)FWInfo, "Firmware version:20%d_%d_%d\n", (fwv[0] >> 4),
+              (fwv[0] & ~0xf0), fwv[1]);
     }
   }
   else
   {
-    sprintf((char *)FWInfo,"Firmware version:Not Found!\n");
+    sprintf((char *)FWInfo, "Firmware version:Not Found!\n");
   }
-  fprintf(stderr,"%s\n", FWInfo);
-
+  fprintf(stderr, "%s\n", FWInfo);
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -195,7 +190,7 @@ int main(int argc, char *argv[])
     }
     return 1;
   }
-  
+
   // set single frame mode
   int mode = 0;
   retVal = SetQHYCCDStreamMode(pCamHandle, mode);
@@ -342,7 +337,8 @@ int main(int argc, char *argv[])
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, EXPOSURE_TIME);
   printf("SetQHYCCDParam CONTROL_EXPOSURE set to: %d, success.\n", EXPOSURE_TIME);
   if (QHYCCD_SUCCESS == retVal)
-  {}
+  {
+  }
   else
   {
     printf("SetQHYCCDParam CONTROL_EXPOSURE failure, error: %d\n", retVal);
@@ -433,27 +429,25 @@ int main(int argc, char *argv[])
     //process image here
 
     // create file
-	  fitsfile *fptr;
-	  int status = 0;
-	  long naxes[2] = {roiSizeX, roiSizeY};
+    fitsfile *fptr;
+    int status = 0;
+    long naxes[2] = {roiSizeX, roiSizeY};
 
     const char *fitsfilename = "first_try.fits";
 
     fits_create_file(&fptr, fitsfilename, &status);
-	  fits_create_img(fptr, USHORT_IMG, 2, naxes, &status);
+    fits_create_img(fptr, USHORT_IMG, 2, naxes, &status);
 
     fits_write_img(fptr, TUSHORT, 1, roiSizeX * roiSizeY, pImgData, &status);
 
     fits_close_file(fptr, &status);
-
-
   }
   else
   {
     printf("GetQHYCCDSingleFrame failure, error: %d\n", retVal);
   }
 
-  delete [] pImgData;
+  delete[] pImgData;
 
   retVal = CancelQHYCCDExposingAndReadout(pCamHandle);
   if (QHYCCD_SUCCESS == retVal)
