@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
   int EXPOSURE_TIME = 20000;
   int camBinX = 1;
   int camBinY = 1;
-  int bit_resolution = 16;
 
   //Set ROI
   unsigned int roiStartX = 0;
@@ -126,7 +125,7 @@ void QuickCameraSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB
   retVal = SetQHYCCDBinMode(pCamHandle, camBinX, camBinY);
 
   // Set Bit Resolution
-  retVal = SetQHYCCDBitsMode(pCamHandle, bit_resolution);
+  retVal = SetQHYCCDBitsMode(pCamHandle, 16);
 }
 
 //Capture Picture
