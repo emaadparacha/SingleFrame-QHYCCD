@@ -70,9 +70,10 @@ int main(int argc, char *argv[])
 {
 
   int USB_TRAFFIC = 10;
-  int CHIP_GAIN = 10;
-  int CHIP_OFFSET = 140;
-  int EXPOSURE_TIME = 20000;
+  int CHIP_GAIN = atoi(argv[2]);
+  int CHIP_OFFSET = atoi(argv[3]);
+  int EXPOSURE_TIME = atoi(argv[1]);
+  //int EXPOSURE_TIME = 1000;
   int camBinX = 1;
   int camBinY = 1;
 
@@ -334,6 +335,22 @@ int main(int argc, char *argv[])
     }
   }
 
+  double min, max, step;
+
+  retVal = IsQHYCCDControlAvailable(pCamHandle, CONTROL_EXPOSURE);
+  if(retVal == QHYCCD_SUCCESS)
+  {
+    retVal = GetQHYCCDParamMinMaxStep(pCamHandle, CONTROL_EXPOSURE, &min, &max, &step);
+    printf("EXPOSURE min = %1f max  = %1f step = %1f\n", min, max, step);
+
+    retVal = GetQHYCCDParamMinMaxStep(pCamHandle, CONTROL_GAIN, &min, &max, &step);
+    printf("GAIN min = %1f max  = %1f step = %1f\n", min, max, step);
+
+    retVal = GetQHYCCDParamMinMaxStep(pCamHandle, CONTROL_OFFSET, &min, &max, &step);
+    printf("OFFSET min = %1f max  = %1f step = %1f\n", min, max, step);
+
+  }
+
   // set exposure time
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, EXPOSURE_TIME);
   printf("SetQHYCCDParam CONTROL_EXPOSURE set to: %d, success.\n", EXPOSURE_TIME);
@@ -389,6 +406,8 @@ int main(int argc, char *argv[])
     }
   }
 
+  retVal = SetQHYCCDReadMode(pCamHandle, 1);
+
   // single frame
   printf("ExpQHYCCDSingleFrame(pCamHandle) - start...\n");
   retVal = ExpQHYCCDSingleFrame(pCamHandle);
@@ -434,7 +453,12 @@ int main(int argc, char *argv[])
     int status = 0;
     long naxes[2] = {roiSizeX, roiSizeY};
 
-    string fitname = "qhyImg_" + to_string(time(0)) + ".fits";
+    //string fitname = "qhyImg_" + to_string(time(0)) + "_exp_" + to_string(EXPOSURE_TIME/1000000)+"sec_gain_" + to_string(CHIP_GAIN) + "_offset_" + to_string(CHIP_OFFSET) + ".fits";
+
+    //string fitname = "offsetTest_exp" + to_string(EXPOSURE_TIME) + "_offset" + to_string(CHIP_OFFSET) + ".fits";
+
+    string fitname = "gainTest_exp" + to_string(EXPOSURE_TIME) + "_gain" + to_string(CHIP_GAIN) + ".fits";
+
 
     const char *fitsfilename = fitname.c_str();
 
