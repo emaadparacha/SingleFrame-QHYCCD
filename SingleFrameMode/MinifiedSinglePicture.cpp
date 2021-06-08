@@ -9,61 +9,6 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
-{
-  // From chip
-  double chipWidthMM;
-  double chipHeightMM;
-  double pixelWidthUM;
-  double pixelHeightUM;
-  unsigned int maxImageSizeX;
-  unsigned int maxImageSizeY;
-  unsigned int bpp;
-  unsigned int channels;
-
-  unsigned int retVal;
-  char camId[32];
-  camId = QuickSetUp(retVal);
-
-  qhyccd_handle *pCamHandle = QuickCameraInit(retVal, camId);
-
-  // get chip info
-  retVal = GetQHYCCDChipInfo(*pCamHandle, &chipWidthMM, &chipHeightMM, &maxImageSizeX, &maxImageSizeY, &pixelWidthUM, &pixelHeightUM, &bpp);
-
-  //=================|----------|================
-  //=================|EDIT THESE|================
-  //=================|----------|================
-
-  // Set gain, offset, exposure, binning
-  int USB_TRAFFIC = 10;
-  int CHIP_GAIN = 10;
-  int CHIP_OFFSET = 140;
-  int EXPOSURE_TIME = 20000;
-  int camBinX = 1;
-  int camBinY = 1;
-
-  //Set ROI
-  unsigned int roiStartX = 0;
-  unsigned int roiStartY = 0;
-  unsigned int roiSizeX = maxImageSizeX;
-  unsigned int roiSizeY = maxImageSizeY;
-
-  //=================|----------|================
-  //=================|EDIT THESE|================
-  //=================|----------|================
-
-  //Set Camera Settings
-  QuickCameraSettings(retVal, *pCamHandle, USB_TRAFFIC, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME, camBinX, camBinY, bit_resolution, roiStartX, roiStartY, roiSizeX, roiSizeY);
-
-  //Take Picture
-  unsigned char *pImgData = 0;
-  QuickCapture(retVal, *pCamHandle, *pImgData, roiSizeX, roiSizeY, bpp, channels);
-
-  //Finish
-  QuickEnd(retVal, *pCamHandle);
-
-  return 0;
-}
 
 //=============================================
 //=============================================
@@ -80,15 +25,15 @@ char QuickSetUp(unsigned int retVal)
   retVal = InitQHYCCDResource();
 
   // Scan for Camera and get Camera ID
-  int camCount = ScanQHYCCD();
+  //int camCount = ScanQHYCCD();
   char camId[32];
   retVal = GetQHYCCDId(0, camId);
 
-  return camId;
+  return *camId;
 }
 
 //Open and Initialize Camera
-qhyccd_handle QuickCameraInit(unsigned int retVal, char *camId)
+qhyccd_handle* QuickCameraInit(unsigned int retVal, char *camId)
 {
   // Open Camera
   qhyccd_handle *pCamHandle = OpenQHYCCD(camId);
@@ -104,7 +49,7 @@ qhyccd_handle QuickCameraInit(unsigned int retVal, char *camId)
 }
 
 //Set Camera Settings
-void QuickCameraSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TRAFFIC, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME, int camBinX, int camBinY, int bit_resolution, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY)
+void QuickCameraSettings(unsigned int retVal, qhyccd_handle* pCamHandle, int USB_TRAFFIC, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME, int camBinX, int camBinY, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY)
 {
   // Set Traffic
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_USBTRAFFIC, USB_TRAFFIC);
@@ -181,4 +126,60 @@ void QuickEnd(unsigned int retVal, qhyccd_handle *pCamHandle)
 
   //Release SDK Resources
   retVal = ReleaseQHYCCDResource();
+}
+
+int main(int argc, char *argv[])
+{
+  // From chip
+  double chipWidthMM;
+  double chipHeightMM;
+  double pixelWidthUM;
+  double pixelHeightUM;
+  unsigned int maxImageSizeX;
+  unsigned int maxImageSizeY;
+  unsigned int bpp;
+  unsigned int channels;
+
+  unsigned int retVal;
+  char camId[32];
+  *camId = QuickSetUp(retVal);
+
+  qhyccd_handle *pCamHandle = QuickCameraInit(retVal, camId);
+
+  // get chip info
+  retVal = GetQHYCCDChipInfo(pCamHandle, &chipWidthMM, &chipHeightMM, &maxImageSizeX, &maxImageSizeY, &pixelWidthUM, &pixelHeightUM, &bpp);
+
+  //=================|----------|================
+  //=================|EDIT THESE|================
+  //=================|----------|================
+
+  // Set gain, offset, exposure, binning
+  int USB_TRAFFIC = 10;
+  int CHIP_GAIN = 10;
+  int CHIP_OFFSET = 140;
+  int EXPOSURE_TIME = 20000;
+  int camBinX = 1;
+  int camBinY = 1;
+
+  //Set ROI
+  unsigned int roiStartX = 0;
+  unsigned int roiStartY = 0;
+  unsigned int roiSizeX = 100;
+  unsigned int roiSizeY = 100;
+
+  //=================|----------|================
+  //=================|EDIT THESE|================
+  //=================|----------|================
+
+  //Set Camera Settings
+  QuickCameraSettings(retVal, pCamHandle, USB_TRAFFIC, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME, camBinX, camBinY, roiStartX, roiStartY, roiSizeX, roiSizeY);
+
+  //Take Picture
+  unsigned char *pImgData = 0;
+  QuickCapture(retVal, pCamHandle, pImgData, roiSizeX, roiSizeY, bpp, channels);
+
+  //Finish
+  QuickEnd(retVal, pCamHandle);
+
+  return 0;
 }
