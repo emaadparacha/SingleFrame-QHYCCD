@@ -96,7 +96,7 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle* pCamHandle, int USB_TR
 }
 
 // // // // // TAKE PICTURE // // // // //
-void QuickCapture(unsigned int retVal, qhyccd_handle* pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME)
+void QuickCapture(unsigned int retVal, qhyccd_handle* pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME, double tempSetting, int readMode)
 {
     // Channel of Image
     unsigned int channels; 
@@ -133,6 +133,13 @@ void QuickCapture(unsigned int retVal, qhyccd_handle* pCamHandle, int runTimes, 
     // Create File
     fits_create_file(&fptr, fitsfilename, &status);
     fits_create_img(fptr, USHORT_IMG, 2, naxes, &status);
+
+    // Headers Information
+    fits_update_key(fptr, TDOUBLE, "TEMP", &tempSetting, "Camera Temperature", &status);
+    fits_update_key(fptr, TINT, "EXPOSURE", &EXPOSURE_TIME, "Exposure time in microseconds", &status);
+    fits_update_key(fptr, TINT, "OFFSET", &CHIP_OFFSET, "Offset Setting", &status);
+    fits_update_key(fptr, TINT, "GAIN", &CHIP_GAIN, "Gain Setting", &status);
+    fits_update_key(fptr, TINT, "READMODE", &readMode, "ReadMode Setting", &status);
 
     // Write to File
     fits_write_img(fptr, TUSHORT, 1, roiSizeX * roiSizeY, pImgData, &status);
@@ -198,7 +205,7 @@ int main(int argc, char *argv[])
   // // // // // TAKE PICTURE // // // // //
   for (int runner = 0; runner < runTimes; runner++)
   {
-    QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME);
+    QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME, tempSetting, readMode);
   }
 
   // // // // // THE END // // // // //
