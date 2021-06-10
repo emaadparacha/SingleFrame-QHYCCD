@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   int CHIP_OFFSET = atoi(argv[3]); // Offset Setting
   double tempSetting = atof(argv[4]); // Temperature of Camera
   int readMode = atoi(argv[5]); // ReadMode
-  int runTimes = atoi(argv[6]) // How Many Pictures To Get
+  int runTimes = atoi(argv[6]); // How Many Pictures To Get
 
   //Variables Preset
   unsigned int roiStartX = 0; // ROI Start x
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
   // // // // // TAKE PICTURE // // // // //
   for (int runner = 0; runner < runTimes; runner++)
   {
-    QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, channels, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME) 
+    QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, channels, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME);
   }
 
   // // // // // THE END // // // // //
