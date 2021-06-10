@@ -60,7 +60,22 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle* pCamHandle, int USB_TR
   //Make Sure Temperature Is Correct
   while(abs(currentTemp - tempSetting) > 1)
   {
-    sleep(1);
+    //Get current temp
+    currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
+
+    //Because why not
+    if ((currentTemp - tempSetting) > 0)
+    {
+      printf("Current Temperature: %.2f || You Want: %.2f . Pls wait while the camera is cooling down. \n", currentTemp, tempSetting);
+    }
+
+    else
+    {
+      printf("Current Temperature: %.2f || You Want: %.2f . Pls wait while the camera is heating up. \n", currentTemp, tempSetting);
+    }
+
+    //Try again in 10 seconds
+    sleep(10);
   }
 
   // Set Exposure Time
@@ -81,8 +96,11 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle* pCamHandle, int USB_TR
 }
 
 // // // // // TAKE PICTURE // // // // //
-void QuickCapture(unsigned int retVal, qhyccd_handle* pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, unsigned int channels, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME)
+void QuickCapture(unsigned int retVal, qhyccd_handle* pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME)
 {
+    // Channel of Image
+    unsigned int channels; 
+
     // Single Frame
     retVal = ExpQHYCCDSingleFrame(pCamHandle);
 
@@ -167,7 +185,6 @@ int main(int argc, char *argv[])
   int camBinY = 1; // Binning
   int USB_TRAFFIC = 10; // USB Traffic
   unsigned int bpp = 16; // Bit Depth of Image
-  unsigned int channels; // Channel of Image
 
   // // // // // INITIALIZE SDK // // // // //
   unsigned int retVal = InitQHYCCDResource();
@@ -181,7 +198,7 @@ int main(int argc, char *argv[])
   // // // // // TAKE PICTURE // // // // //
   for (int runner = 0; runner < runTimes; runner++)
   {
-    QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, channels, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME);
+    QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME);
   }
 
   // // // // // THE END // // // // //
