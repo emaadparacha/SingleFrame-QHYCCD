@@ -6,6 +6,8 @@
 #include <fitsio.h>
 #include "qhyccd.h"
 #include <ctime>
+#include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -303,8 +305,9 @@ int main(int argc, char *argv[])
 
   // check gain
   retVal = IsQHYCCDControlAvailable(pCamHandle, CONTROL_GAIN);
-  if (QHYCCD_SUCCESS == retVal)
-  {
+  //retVal = GetQHYCCDParam(pCamHandle, CONTROL_GAIN);
+  //if (QHYCCD_SUCCESS == retVal)
+  //{
     retVal = SetQHYCCDParam(pCamHandle, CONTROL_GAIN, CHIP_GAIN);
     if (retVal == QHYCCD_SUCCESS)
     {
@@ -316,7 +319,8 @@ int main(int argc, char *argv[])
       getchar();
       return 1;
     }
-  }
+  //}
+  retVal = GetQHYCCDParam(pCamHandle, CONTROL_GAIN);
 
   // check offset
   retVal = IsQHYCCDControlAvailable(pCamHandle, CONTROL_OFFSET);
@@ -334,6 +338,12 @@ int main(int argc, char *argv[])
       return 1;
     }
   }
+
+  //Get Temperature
+  retVal = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
+
+  //Set Temperature
+  retVal = ControlQHYCCDTemp(pCamHandle,23.00);
 
   double min, max, step;
 
@@ -457,7 +467,11 @@ int main(int argc, char *argv[])
 
     //string fitname = "offsetTest_exp" + to_string(EXPOSURE_TIME) + "_offset" + to_string(CHIP_OFFSET) + ".fits";
 
-    string fitname = "gainTest_exp" + to_string(EXPOSURE_TIME) + "_gain" + to_string(CHIP_GAIN) + ".fits";
+    //string fitname = "gainTest_exp" + to_string(EXPOSURE_TIME) + "_gain" + to_string(CHIP_GAIN) + ".fits";
+
+    string fitname = "forShaaban_exp" + to_string(EXPOSURE_TIME) + "__" + to_string(time(0)) + ".fits";
+
+
 
 
     const char *fitsfilename = fitname.c_str();
@@ -475,6 +489,70 @@ int main(int argc, char *argv[])
   {
     printf("GetQHYCCDSingleFrame failure, error: %d\n", retVal);
   }
+
+
+// ATTEMPTS AT ANALYSIS
+
+  // std::cout<pImgData*;
+
+  // // Getting standard deviation
+
+  // double sum = 0.0;
+  // double mean = 0.0;
+  // double sqstd = 0.0;
+  // double std = 0.0;
+  // double median = 0.0;
+  // unsigned int totpix = maxImageSizeX * maxImageSizeY;
+
+  // for (unsigned int i = 0; i < totpix; i++)
+  // {
+  //   sum += pImgData[i];
+  // }
+
+  // mean = sum/totpix;
+
+  // for (unsigned int i = 0; i < totpix; i++)
+  // {
+  //   sqstd += pow(pImgData[i] - mean, 2);
+  // }
+
+  // std = sqrt(sqstd/totpix);
+
+  // median = pImgData[totpix/2];
+
+  // //////////
+  // // Remove hot pixels
+
+  // double hotsum = 0.0;
+  // double hotmean = 0.0;
+  // double hotsqstd = 0.0;
+  // double hotstd = 0.0;
+  // double hotmedian = 0.0;
+  // int hotlength = 0;
+
+  // for (unsigned int i = 0; i < totpix; i++)
+  // {
+  //   if (pImgData[i] < (mean - 3*std) || pImgData[i] > (mean + 3*std))
+  //   {
+  //     hotsum += pImgData[i];
+  //     hotlength++;
+  //   }
+  // }
+
+  // hotmean = hotsum/hotlength;
+
+  // for (unsigned int i = 0; i < totpix; i++)
+  // {
+  //   if (pImgData[i] < (mean - 3*std) || pImgData[i] > (mean + 3*std))
+  //   {
+  //     hotsqstd += pow(pImgData[i] - hotmean, 2);
+  //   }
+  // }
+
+  // hotstd = sqrt(hotsqstd/hotlength);
+
+  // //hotmedian = pImgData[length/2];
+
 
   delete[] pImgData;
 
@@ -511,6 +589,15 @@ int main(int argc, char *argv[])
     printf("Cannot release SDK resources, error %d.\n", retVal);
     return 1;
   }
+
+  // printf("Final STANDARD DEVIATION IS %f.\n", std);
+  // printf("Final MEDIAN IS %f.\n", median);
+  // printf("Final MEAN IS %f.\n", mean);
+  // printf("Lenght %d.\n", totpix);
+
+  // printf("(HOT PIXEL REMOVED) Final STANDARD DEVIATION IS %f.\n", hotstd);
+  // printf("HOW MANY HOT PIXELS WERETHERE %d.\n", hotlength);
+  // printf("(HOT PIXEL REMOVED) Final MEAN IS %f.\n", hotmean);
 
   return 0;
 }
