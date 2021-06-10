@@ -493,65 +493,76 @@ int main(int argc, char *argv[])
 
 // ATTEMPTS AT ANALYSIS
 
-  // std::cout<pImgData*;
+  // // // // // ROUGH AND INCOMPLETE ANALYSIS // // // // //
 
-  // // Getting standard deviation
+    // std::cout<pImgData*;
 
-  // double sum = 0.0;
-  // double mean = 0.0;
-  // double sqstd = 0.0;
-  // double std = 0.0;
-  // double median = 0.0;
-  // unsigned int totpix = maxImageSizeX * maxImageSizeY;
+    // // Getting standard deviation
 
-  // for (unsigned int i = 0; i < totpix; i++)
-  // {
-  //   sum += pImgData[i];
-  // }
+    // double sum = 0.0;
+    // double mean = 0.0;
+    // double sqstd = 0.0;
+    // double std = 0.0;
+    // double median = 0.0;
+    // unsigned int totpix = maxImageSizeX * maxImageSizeY;
 
-  // mean = sum/totpix;
+    // for (unsigned int i = 0; i < totpix; i++)
+    // {
+    //   sum += pImgData[i];
+    // }
 
-  // for (unsigned int i = 0; i < totpix; i++)
-  // {
-  //   sqstd += pow(pImgData[i] - mean, 2);
-  // }
+    // mean = sum/totpix;
 
-  // std = sqrt(sqstd/totpix);
+    // for (unsigned int i = 0; i < totpix; i++)
+    // {
+    //   sqstd += pow(pImgData[i] - mean, 2);
+    // }
 
-  // median = pImgData[totpix/2];
+    // std = sqrt(sqstd/totpix);
 
-  // //////////
-  // // Remove hot pixels
+    // median = pImgData[totpix/2];
 
-  // double hotsum = 0.0;
-  // double hotmean = 0.0;
-  // double hotsqstd = 0.0;
-  // double hotstd = 0.0;
-  // double hotmedian = 0.0;
-  // int hotlength = 0;
+    // //////////
+    // // Remove hot pixels
 
-  // for (unsigned int i = 0; i < totpix; i++)
-  // {
-  //   if (pImgData[i] < (mean - 3*std) || pImgData[i] > (mean + 3*std))
-  //   {
-  //     hotsum += pImgData[i];
-  //     hotlength++;
-  //   }
-  // }
+    // double hotsum = 0.0;
+    // double hotmean = 0.0;
+    // double hotsqstd = 0.0;
+    // double hotstd = 0.0;
+    // double hotmedian = 0.0;
+    // int hotlength = 0;
 
-  // hotmean = hotsum/hotlength;
+    // for (unsigned int i = 0; i < totpix; i++)
+    // {
+    //   if (pImgData[i] < (mean - 3*std) || pImgData[i] > (mean + 3*std))
+    //   {
+    //     hotsum += pImgData[i];
+    //     hotlength++;
+    //   }
+    // }
 
-  // for (unsigned int i = 0; i < totpix; i++)
-  // {
-  //   if (pImgData[i] < (mean - 3*std) || pImgData[i] > (mean + 3*std))
-  //   {
-  //     hotsqstd += pow(pImgData[i] - hotmean, 2);
-  //   }
-  // }
+    // hotmean = hotsum/hotlength;
 
-  // hotstd = sqrt(hotsqstd/hotlength);
+    // for (unsigned int i = 0; i < totpix; i++)
+    // {
+    //   if (pImgData[i] < (mean - 3*std) || pImgData[i] > (mean + 3*std))
+    //   {
+    //     hotsqstd += pow(pImgData[i] - hotmean, 2);
+    //   }
+    // }
 
-  // //hotmedian = pImgData[length/2];
+    // hotstd = sqrt(hotsqstd/hotlength);
+
+    // //hotmedian = pImgData[length/2];
+
+    // printf("Final STANDARD DEVIATION IS %f.\n", std);
+    // printf("Final MEDIAN IS %f.\n", median);
+    // printf("Final MEAN IS %f.\n", mean);
+    // printf("Lenght %d.\n", totpix);
+
+    // printf("(HOT PIXEL REMOVED) Final STANDARD DEVIATION IS %f.\n", hotstd);
+    // printf("HOW MANY HOT PIXELS WERETHERE %d.\n", hotlength);
+    // printf("(HOT PIXEL REMOVED) Final MEAN IS %f.\n", hotmean);
 
 
   delete[] pImgData;
