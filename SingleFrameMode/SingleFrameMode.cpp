@@ -55,31 +55,21 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
   //Get Current Temperature
   double currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
 
-  // Increment or Decrement Temperature in steps of 0.5 (so it does not overshoot)
-  // If the difference in the current temperature and the temperature we want is greater than 0.5 degrees
-  if (abs(currentTemp - tempSetting) > 0.4)
+  // Set Temperature to the temperature setting we want
+  retVal = SetQHYCCDParam(pCamHandle, CONTROL_COOLER, tempSetting);
+
+  // While the temperature difference is greater than 0 degrees
+  
+  for (int tempLoop = 0; tempLoop < 3; tempLoop++)
   {
+    // Sleep for 5 seconds to get new temperature
+    sleep(5);
 
-    // While the difference is greater than 0.4 degrees
-    while (abs(currentTemp - tempSetting) > 0.4)
+    // Get current temperature again to loop
+    currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
+
+    while (abs(currentTemp - tempSetting) > 0)
     {
-      // If we want to cool down the camera
-      if (currentTemp > tempSetting)
-      {
-        //Set Temperature to current temperature - 0.4 so it decreases slowly
-        retVal = SetQHYCCDParam(pCamHandle, CONTROL_COOLER, (currentTemp - 0.4));
-      }
-
-      // If we want to heat up the camera
-      else
-      {
-        //Set Temperature to current temperature + 0.4 so it increases slowly
-        retVal = SetQHYCCDParam(pCamHandle, CONTROL_COOLER, (currentTemp + 0.4));
-      }
-
-      // Get current temperature again
-      currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
-
       // Report temperature progress to screen
       if ((currentTemp - tempSetting) > 0)
       {
@@ -91,47 +81,17 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
         printf("Current Temperature: %.2f || You Want: %.2f . Camera is heating up. \n", currentTemp, tempSetting);
       }
 
-      // Sleep for 4 seconds before trying again
-      sleep(4);
+      //Try again in 5 seconds
+      sleep(5);
 
       // Get current temperature again to loop again
       currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
     }
+
   }
 
-  // Sleep for 5 seconds before setting the temperature finally
+  // Sleep for 5 seconds before running
   sleep(5);
-
-  // Set Temperature to the temperature setting we want
-  retVal = SetQHYCCDParam(pCamHandle, CONTROL_COOLER, tempSetting);
-
-  // While the temperature difference is greater than 0 degrees
-  while (abs(currentTemp - tempSetting) > 0)
-  {
-
-    // Set temperature again
-    retVal = SetQHYCCDParam(pCamHandle, CONTROL_COOLER, tempSetting);
-
-    //Get current temperature
-    currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
-
-    // Report temperature progress to screen
-    if ((currentTemp - tempSetting) > 0)
-    {
-      printf("Current Temperature: %.2f || You Want: %.2f . Camera is cooling down. \n", currentTemp, tempSetting);
-    }
-
-    else
-    {
-      printf("Current Temperature: %.2f || You Want: %.2f . Camera is heating up. \n", currentTemp, tempSetting);
-    }
-
-    //Try again in 4 seconds
-    sleep(4);
-
-    // Get current temperature again to loop again
-    currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
-  }
 
   // // // // // End Temperature Control System // // // // //
 
@@ -157,41 +117,41 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
 
   // // // // // Take 2 Biases Before Taking Actual Image// // // // //
 
-  // Start Exposing
+  // // Start Exposing
   retVal = ExpQHYCCDSingleFrame(pCamHandle);
 
   // Loop over however many images we want to take before taking the actual image
   for (int biasRun = 0; biasRun < 2; biasRun++)
   {
-    // Set Exposure Time
-    //retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, 1100000); // 1.1 second
-    retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, 100); // 100 microseconds
+      // Set Exposure Time
+     //retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, 1100000); // 1.1 second
+     retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, 100); // 100 microseconds
 
-    // Channel of Image
-    unsigned int channels;
+     // Channel of Image
+     unsigned int channels;
 
-    // Image Data Variable
-    unsigned char *pImgData = 0;
+     // Image Data Variable
+     unsigned char *pImgData = 0;
 
-    // Get Requested Memory Length
-    uint32_t length = GetQHYCCDMemLength(pCamHandle);
-    pImgData = new unsigned char[length];
-    memset(pImgData, 0, length);
+     // Get Requested Memory Length
+     uint32_t length = GetQHYCCDMemLength(pCamHandle);
+     pImgData = new unsigned char[length];
+     memset(pImgData, 0, length);
 
-    //Take Single Frame
-    retVal = GetQHYCCDSingleFrame(pCamHandle, &roiSizeX, &roiSizeY, &bpp, &channels, pImgData);
+     //Take Single Frame
+     retVal = GetQHYCCDSingleFrame(pCamHandle, &roiSizeX, &roiSizeY, &bpp, &channels, pImgData);
 
-    // Delete image data
-    delete[] pImgData;
-  }
+     // Delete image data
+     delete[] pImgData;
+   }
 
-  // Cancel Exposing and Readout
-  retVal = CancelQHYCCDExposingAndReadout(pCamHandle);
+   // Cancel Exposing and Readout
+   retVal = CancelQHYCCDExposingAndReadout(pCamHandle);
 
-  // Sleep for 3 seconds before taking the actual image
-  sleep(3);
+   // Sleep for 3 seconds before taking the actual image
+   sleep(3);
 
-  // // // // // End Taking 2 Biases Before Taking Actual Image// // // // //
+   // // // // // End Taking 2 Biases Before Taking Actual Image// // // // //
 
   // // // // // Take Actual Image // // // // //
 
@@ -285,20 +245,26 @@ int main(int argc, char *argv[])
 
   // The List of All Variables -- SET THESE TO TAKE IMAGES
 
-  int sampleGains[2] = {56, 60};            // List of gain settings to loop over
-  int sampleOffsets[2] = {10, 20};          // List of offset setings to loop over
-  double sampleTemps[2] = {-2.00, 0.00};    // List of temperatures to loop over (in Celsius)
-  int sampleExps[2] = {1000000, 100000000}; // List of exposure times to loop over (in us)
+  //int sampleGains[1] = {56};            // List of gain settings to loop over
+  //int sampleOffsets[3] = {10, 20, 40};          // List of offset setings to loop over
+  //double sampleTemps[17] = {-8.00, -7.00, -6.00, -5.00, -4.00, -3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00};    // List of temperatures to loop over (in Celsius)
+  //int sampleExps[5] = {1000000, 10000000, 30000000, 100000000, 300000000}; // List of exposure times to loop over (in us)
+  //int howManyTimesToRun = 4;               // How many times to take pictures at each unique setting
+
+  int sampleGains[1] = {56};            // List of gain settings to loop over
+  int sampleOffsets[1] = {10};          // List of offset setings to loop over
+  double sampleTemps[1] = {-2.00};    // List of temperatures to loop over (in Celsius)
+  int sampleExps[1] = {100000000}; // List of exposure times to loop over (in us)
   int howManyTimesToRun = 10;               // How many times to take pictures at each unique setting
 
   // LOOP THE LOOPS (MAKE SURE to change the values for t, o, g, and e to correspond to the arrays above)
-  for (int t = 0; t < 2; t++)
+  for (int t = 0; t < 1; t++)
   {
-    for (int o = 0; o < 2; o++)
+    for (int o = 0; o < 1; o++)
     {
-      for (int g = 0; g < 2; g++)
+      for (int g = 0; g < 1; g++)
       {
-        for (int e = 0; e < 2; e++)
+        for (int e = 0; e < 1; e++)
         {
           int EXPOSURE_TIME = sampleExps[e];   // Exposure time (in us)
           int CHIP_GAIN = sampleGains[g];      // Gain Setting
@@ -317,11 +283,11 @@ int main(int argc, char *argv[])
           int USB_TRAFFIC = 10;         // USB Traffic
           unsigned int bpp = 16;        // Bit Depth of Image
 
+          // // // // // CAMERA SETTINGS // // // // //
+          QuickCamSettings(retVal, pCamHandle, USB_TRAFFIC, CHIP_GAIN, CHIP_OFFSET, tempSetting, EXPOSURE_TIME, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
+
           for (int runner = 0; runner < runTimes; runner++)
           {
-            // // // // // CAMERA SETTINGS // // // // //
-            QuickCamSettings(retVal, pCamHandle, USB_TRAFFIC, CHIP_GAIN, CHIP_OFFSET, tempSetting, EXPOSURE_TIME, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
-
             // // // // // TAKE PICTURE // // // // //
             QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME, tempSetting, readMode);
           }
