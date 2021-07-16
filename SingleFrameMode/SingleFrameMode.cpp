@@ -39,7 +39,7 @@ qhyccd_handle *QuickInitialize(unsigned int retVal)
 }
 
 // // // // // CAMERA SETTINGS // // // // //
-void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TRAFFIC, int CHIP_GAIN, int CHIP_OFFSET, double tempSetting, int EXPOSURE_TIME, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
+void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TRAFFIC, int CHIP_GAIN, int CHIP_OFFSET, double tempSetting, double EXPOSURE_TIME, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
 {
   // Set USB Traffic Setting
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_USBTRAFFIC, USB_TRAFFIC);
@@ -63,15 +63,16 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
   for (int tempLoop = 0; tempLoop < 3; tempLoop++)
   {
     // Sleep for 5 seconds to get new temperature
-    sleep(5);
+    sleep(2);
 
     // Get current temperature again to loop
     currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
 
-    while (abs(currentTemp - tempSetting) > 0)
+    double tempPlay = 0.1;
+    while (abs(currentTemp - tempSetting) > tempPlay)
     {
       // Report temperature progress to screen
-      if ((currentTemp - tempSetting) > 0)
+      if ((currentTemp - tempSetting) > tempPlay)
       {
         printf("Current Temperature: %.2f || You Want: %.2f . Camera is cooling down. \n", currentTemp, tempSetting);
       }
@@ -82,7 +83,7 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
       }
 
       //Try again in 5 seconds
-      sleep(5);
+      sleep(2);
 
       // Get current temperature again to loop again
       currentTemp = GetQHYCCDParam(pCamHandle, CONTROL_CURTEMP);
@@ -91,7 +92,7 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
   }
 
   // Sleep for 5 seconds before running
-  sleep(5);
+  sleep(2);
 
   // // // // // End Temperature Control System // // // // //
 
@@ -112,7 +113,20 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
 }
 
 // // // // // TAKE PICTURE // // // // //
-void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int CHIP_GAIN, int CHIP_OFFSET, int EXPOSURE_TIME, double tempSetting, int readMode)
+void QuickCapture(unsigned int retVal, 
+                  qhyccd_handle *pCamHandle, int runTimes, 
+                  int runner, 
+                  unsigned int roiStartX, 
+                  unsigned int roiStartY, 
+                  unsigned int roiSizeX, 
+                  unsigned int roiSizeY, 
+                  unsigned int bpp, 
+                  int CHIP_GAIN, 
+                  int CHIP_OFFSET, 
+                  double EXPOSURE_TIME, 
+                  double tempSetting,
+                  int readMode, 
+                  string savePath)
 {
 
   // // // // // Take 2 Biases Before Taking Actual Image// // // // //
@@ -185,7 +199,7 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
   long curUnixTime = time(0);
 
   // Naming:
-  string fitname = "qhyImg_" + to_string(curUnixTime) + "_exp_" + to_string(EXPOSURE_TIME) + "us_gain_" + to_string(CHIP_GAIN) + "_offset_" + to_string(CHIP_OFFSET) + "_" + to_string(runner) + "_temp" + to_string((int)tempSetting) + ".fits";
+  string fitname = savePath + "_" + to_string(curUnixTime) + "_exp_" + to_string((int)EXPOSURE_TIME) + "us_gain_" + to_string(CHIP_GAIN) + "_offset_" + to_string(CHIP_OFFSET) + "_temp_" + to_string((int)tempSetting) + "_" + to_string(runner) +  + ".fits";
   const char *fitsfilename = fitname.c_str();
 
   // Remove if exists already
@@ -251,11 +265,13 @@ int main(int argc, char *argv[])
   //int sampleExps[5] = {1000000, 10000000, 30000000, 100000000, 300000000}; // List of exposure times to loop over (in us)
   //int howManyTimesToRun = 4;               // How many times to take pictures at each unique setting
 
+  const int MICROSECOND = 1000000;
+
   int sampleGains[1] = {56};            // List of gain settings to loop over
   int sampleOffsets[1] = {10};          // List of offset setings to loop over
-  double sampleTemps[1] = {-2.00};    // List of temperatures to loop over (in Celsius)
-  int sampleExps[1] = {100000000}; // List of exposure times to loop over (in us)
-  int howManyTimesToRun = 10;               // How many times to take pictures at each unique setting
+  double sampleTemps[1] = {15};    // List of temperatures to loop over (in Celsius)
+  double sampleExps[2] = {.0001, 5., 10., 30., 60., 100., 150., 200., 250., 300., 350.}; // List of exposure times to loop over (in us)
+  int howManyTimesToRun = 1;               // How many times to take pictures at each unique setting
 
   // LOOP THE LOOPS (MAKE SURE to change the values for t, o, g, and e to correspond to the arrays above)
   for (int t = 0; t < 1; t++)
@@ -264,14 +280,15 @@ int main(int argc, char *argv[])
     {
       for (int g = 0; g < 1; g++)
       {
-        for (int e = 0; e < 1; e++)
+        for (unsigned int e = 0; e < sizeof(sampleExps)/sizeof(sampleExps[0]); e++)
         {
-          int EXPOSURE_TIME = sampleExps[e];   // Exposure time (in us)
+          double EXPOSURE_TIME = sampleExps[e] * MICROSECOND;   // Exposure time (in us)
           int CHIP_GAIN = sampleGains[g];      // Gain Setting
           int CHIP_OFFSET = sampleOffsets[o];  // Offset Setting
           double tempSetting = sampleTemps[t]; // Temperature of Camera
           int readMode = 1;                    // ReadMode
           int runTimes = howManyTimesToRun;    // How Many Pictures To Get
+          string savePath = "/home/luvs/gill/qhy600m/july16/dark/dark";
 
           //Variables Preset
           unsigned int roiStartX = 0;   // ROI Start x
@@ -289,7 +306,7 @@ int main(int argc, char *argv[])
           for (int runner = 0; runner < runTimes; runner++)
           {
             // // // // // TAKE PICTURE // // // // //
-            QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME, tempSetting, readMode);
+            QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, CHIP_GAIN, CHIP_OFFSET, EXPOSURE_TIME, tempSetting, readMode, savePath);
           }
         }
       }
