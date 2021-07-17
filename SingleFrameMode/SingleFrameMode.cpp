@@ -20,7 +20,7 @@ using namespace std;
 //=============================================
 
 // // // // // INITIALIZE EVERYTHING // // // // //
-qhyccd_handle *QuickInitialize(unsigned int retVal)
+qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
 {
   // Get Camera ID
   char camId[32];
@@ -35,15 +35,27 @@ qhyccd_handle *QuickInitialize(unsigned int retVal)
   // Initialize Camera
   retVal = InitQHYCCD(pCamHandle);
 
+    // Set USB Traffic Setting
+  retVal = SetQHYCCDParam(pCamHandle, CONTROL_USBTRAFFIC, USB_TRAFFIC);
+
+  // Set Image Resolution
+  retVal = SetQHYCCDResolution(pCamHandle, roiStartX, roiStartY, roiSizeX, roiSizeY);
+
+  // Set Binning mode
+  retVal = SetQHYCCDBinMode(pCamHandle, camBinX, camBinY);
+
+  // Set Bit Resolution
+  retVal = SetQHYCCDBitsMode(pCamHandle, 16);
+
+  // Set ReadMode
+  retVal = SetQHYCCDReadMode(pCamHandle, readMode);
+
   return pCamHandle;
 }
 
 // // // // // CAMERA SETTINGS // // // // //
-void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TRAFFIC, int CHIP_GAIN, int CHIP_OFFSET, double tempSetting, double EXPOSURE_TIME, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
+void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int CHIP_GAIN, int CHIP_OFFSET, double tempSetting, double EXPOSURE_TIME)
 {
-  // Set USB Traffic Setting
-  retVal = SetQHYCCDParam(pCamHandle, CONTROL_USBTRAFFIC, USB_TRAFFIC);
-
   // Set Gain Setting
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_GAIN, CHIP_GAIN);
 
@@ -98,18 +110,6 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int USB_TR
 
   // Set Exposure Time
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, EXPOSURE_TIME);
-
-  // Set Image Resolution
-  retVal = SetQHYCCDResolution(pCamHandle, roiStartX, roiStartY, roiSizeX, roiSizeY);
-
-  // Set Binning mode
-  retVal = SetQHYCCDBinMode(pCamHandle, camBinX, camBinY);
-
-  // Set Bit Resolution
-  retVal = SetQHYCCDBitsMode(pCamHandle, 16);
-
-  // Set ReadMode
-  retVal = SetQHYCCDReadMode(pCamHandle, readMode);
 }
 
 // // // // // TAKE PICTURE // // // // //
@@ -133,6 +133,8 @@ void QuickCapture(unsigned int retVal,
 
   // // Start Exposing
   retVal = ExpQHYCCDSingleFrame(pCamHandle);
+
+  sleep(1);
 
   // Loop over however many images we want to take before taking the actual image
   for (int biasRun = 0; biasRun < 2; biasRun++)
@@ -177,6 +179,8 @@ void QuickCapture(unsigned int retVal,
 
   // Single Frame
   retVal = ExpQHYCCDSingleFrame(pCamHandle);
+
+  sleep(1);
 
   // Image Data Variable
   unsigned char *pImgData = 0;
@@ -251,11 +255,22 @@ void QuickExit(unsigned int retVal, qhyccd_handle *pCamHandle)
 int main(int argc, char *argv[])
 {
 
+  //Variables Preset
+  unsigned int roiStartX = 0;   // ROI Start x
+  unsigned int roiStartY = 0;   // ROI Start y
+  unsigned int roiSizeX = 9600; // Max x
+  unsigned int roiSizeY = 6422; // Max y
+  int camBinX = 1;              // Binning
+  int camBinY = 1;              // Binning
+  int USB_TRAFFIC = 10;         // USB Traffic
+  unsigned int bpp = 16;        // Bit Depth of Image
+  int readMode = 1;             // ReadMode
+
   // // // // // INITIALIZE SDK // // // // //
   unsigned int retVal = InitQHYCCDResource();
 
   // // // // // INITIALIZE EVERYTHING ELSE // // // // //
-  qhyccd_handle *pCamHandle = QuickInitialize(retVal);
+  qhyccd_handle *pCamHandle = QuickInitialize(retVal, USB_TRAFFIC, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
 
   // The List of All Variables -- SET THESE TO TAKE IMAGES
 
@@ -270,7 +285,7 @@ int main(int argc, char *argv[])
   int sampleGains[1] = {56};            // List of gain settings to loop over
   int sampleOffsets[1] = {10};          // List of offset setings to loop over
   double sampleTemps[1] = {15};    // List of temperatures to loop over (in Celsius)
-  double sampleExps[2] = {.0001, 5., 10., 30., 60., 100., 150., 200., 250., 300., 350.}; // List of exposure times to loop over (in us)
+  double sampleExps[3] = {123, 123, 123}; // List of exposure times to loop over (in us)
   int howManyTimesToRun = 1;               // How many times to take pictures at each unique setting
 
   // LOOP THE LOOPS (MAKE SURE to change the values for t, o, g, and e to correspond to the arrays above)
@@ -286,22 +301,11 @@ int main(int argc, char *argv[])
           int CHIP_GAIN = sampleGains[g];      // Gain Setting
           int CHIP_OFFSET = sampleOffsets[o];  // Offset Setting
           double tempSetting = sampleTemps[t]; // Temperature of Camera
-          int readMode = 1;                    // ReadMode
           int runTimes = howManyTimesToRun;    // How Many Pictures To Get
           string savePath = "/home/luvs/gill/qhy600m/july16/dark/dark";
 
-          //Variables Preset
-          unsigned int roiStartX = 0;   // ROI Start x
-          unsigned int roiStartY = 0;   // ROI Start y
-          unsigned int roiSizeX = 9600; // Max x
-          unsigned int roiSizeY = 6422; // Max y
-          int camBinX = 1;              // Binning
-          int camBinY = 1;              // Binning
-          int USB_TRAFFIC = 10;         // USB Traffic
-          unsigned int bpp = 16;        // Bit Depth of Image
-
           // // // // // CAMERA SETTINGS // // // // //
-          QuickCamSettings(retVal, pCamHandle, USB_TRAFFIC, CHIP_GAIN, CHIP_OFFSET, tempSetting, EXPOSURE_TIME, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
+          QuickCamSettings(retVal, pCamHandle, CHIP_GAIN, CHIP_OFFSET, tempSetting, EXPOSURE_TIME);
 
           for (int runner = 0; runner < runTimes; runner++)
           {
