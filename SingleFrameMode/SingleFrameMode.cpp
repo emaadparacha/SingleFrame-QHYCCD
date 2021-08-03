@@ -144,6 +144,42 @@ void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double 
   printf("Camera temperature set to %.2f C. \n", tempSetting);
 }
 
+// // // // // FILTER WHEEL CONTROL // // // // //
+void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, char fwPosition)
+{
+  printf("\n");                            // Print new line
+  retVal = IsQHYCCDCFWPlugged(pCamHandle); // Check if filter wheel is plugged in
+
+  // If filter wheel is plugged in
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    char status[64];
+    retVal = GetQHYCCDCFWStatus(pCamHandle, status);                          // Get current position
+    printf("Filter wheel is plugged in and is at position: %c. \n", *status); // Print current position
+
+    // Convert the chars to ints to compare if the filter wheel is at the position we want it to be
+    // Probably a better way to do this, but I don't have camera to debug it right now
+    int iStatus = status - '0';
+    int ifwPosition = fwPosition - '0';
+
+    // Compare if the filter wheel is at the position we want it to be
+    if (status != fwPosition)
+    {
+      char order = '0';
+      retVal = SendOrder2QHYCCDCFW(pCamHandle, &order, ifwPosition);          // Send order to filter wheel to move to new position
+      printf("Filter wheel has been moved to position: %d. \n", ifwPosition); // Print new position
+    }
+  }
+  
+  // If filter wheel is not detected
+  else
+  {
+    printf("No filter wheel detected. \n"); // Print that it is not detected
+  }
+
+  printf("\n");
+}
+
 // // // // // TAKE PICTURE // // // // //
 void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX,
                   unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int gainSetting,
@@ -255,13 +291,13 @@ int main(int argc, char *argv[])
   qhyccd_handle *pCamHandle = QuickInitialize(retVal, USB_TRAFFIC, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
 
   // The List of All Variables -- SET THESE TO TAKE IMAGES
-  int sampleGains[] = {56};                                                      // List of gain settings to loop over
-  int sampleOffsets[] = {20};                                                    // List of offset setings to loop over
-  double sampleTemps[] = {12};                  // List of temperatures to loop over (in Celsius)
-  double sampleExps[] = {2.}; // List of exposure times to loop over (in seconds)
-  int howManyTimesToRun = 1;                                                     // How many times to take pictures at each unique setting
-  double tempError = 0.2;                                                        // Temperature regulation error range
-  char fwPosition = '4'; // 
+  int sampleGains[] = {56};    // List of gain settings to loop over
+  int sampleOffsets[] = {20};  // List of offset setings to loop over
+  double sampleTemps[] = {12}; // List of temperatures to loop over (in Celsius)
+  double sampleExps[] = {2.};  // List of exposure times to loop over (in seconds)
+  int howManyTimesToRun = 1;   // How many times to take pictures at each unique setting
+  double tempError = 0.2;      // Temperature regulation error range
+  char fwPosition = '0';       // Set this to the filter wheel position you want (between 0 and 7)
 
   int totalNumberOfFiles = sizeof(sampleTemps) / sizeof(sampleTemps[0]) * sizeof(sampleOffsets) / sizeof(sampleOffsets[0]) * sizeof(sampleGains) / sizeof(sampleGains[0]) * sizeof(sampleExps) / sizeof(sampleExps[0]) * howManyTimesToRun; // How many images will be taken
 
@@ -289,17 +325,8 @@ int main(int argc, char *argv[])
           // Set and regulate temperature
           QuickTempRegulation(retVal, pCamHandle, tempSetting, tempError);
 
-          //What position is the filter wheel in
-          char status[64];
-          retVal = GetQHYCCDCFWStatus(pCamHandle,status);
-          printf("\n");
-          printf("Current Filter Wheel position is: %c \n", *status);
-
-          //Testing CFW Filter
-          char order = '0';
-          retVal = SendOrder2QHYCCDCFW(pCamHandle, &order, 1);
-          printf("New");
-
+          // Operate filter wheel
+          QuickFilterWheelControl(retVal, pCamHandle, fwPosition);
 
           // Loop to take multiple pictures
           for (int runner = 0; runner < runTimes; runner++)
