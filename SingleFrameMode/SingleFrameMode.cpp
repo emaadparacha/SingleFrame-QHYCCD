@@ -257,10 +257,11 @@ int main(int argc, char *argv[])
   // The List of All Variables -- SET THESE TO TAKE IMAGES
   int sampleGains[] = {56};                                                      // List of gain settings to loop over
   int sampleOffsets[] = {20};                                                    // List of offset setings to loop over
-  double sampleTemps[] = {-20., -15., -10., -5., 0., 4.0};                  // List of temperatures to loop over (in Celsius)
-  double sampleExps[] = {1., 10., 30., 60., 100., 150., 200., 250., 300.}; // List of exposure times to loop over (in seconds)
-  int howManyTimesToRun = 6;                                                     // How many times to take pictures at each unique setting
+  double sampleTemps[] = {12};                  // List of temperatures to loop over (in Celsius)
+  double sampleExps[] = {2.}; // List of exposure times to loop over (in seconds)
+  int howManyTimesToRun = 1;                                                     // How many times to take pictures at each unique setting
   double tempError = 0.2;                                                        // Temperature regulation error range
+  char fwPosition = '4'; // 
 
   int totalNumberOfFiles = sizeof(sampleTemps) / sizeof(sampleTemps[0]) * sizeof(sampleOffsets) / sizeof(sampleOffsets[0]) * sizeof(sampleGains) / sizeof(sampleGains[0]) * sizeof(sampleExps) / sizeof(sampleExps[0]) * howManyTimesToRun; // How many images will be taken
 
@@ -287,6 +288,18 @@ int main(int argc, char *argv[])
 
           // Set and regulate temperature
           QuickTempRegulation(retVal, pCamHandle, tempSetting, tempError);
+
+          //What position is the filter wheel in
+          char status[64];
+          retVal = GetQHYCCDCFWStatus(pCamHandle,status);
+          printf("\n");
+          printf("Current Filter Wheel position is: %c \n", *status);
+
+          //Testing CFW Filter
+          char order = '0';
+          retVal = SendOrder2QHYCCDCFW(pCamHandle, &order, 1);
+          printf("New");
+
 
           // Loop to take multiple pictures
           for (int runner = 0; runner < runTimes; runner++)
