@@ -157,17 +157,12 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, cha
     retVal = GetQHYCCDCFWStatus(pCamHandle, status);                          // Get current position
     printf("Filter wheel is plugged in and is at position: %c. \n", *status); // Print current position
 
-    // Convert the chars to ints to compare if the filter wheel is at the position we want it to be
-    // Probably a better way to do this, but I don't have camera to debug it right now
-    int iStatus = status - '0';
-    int ifwPosition = fwPosition - '0';
-
     // Compare if the filter wheel is at the position we want it to be
-    if (status != fwPosition)
+    if (*status != fwPosition)
     {
       char order = '0';
-      retVal = SendOrder2QHYCCDCFW(pCamHandle, &order, ifwPosition);          // Send order to filter wheel to move to new position
-      printf("Filter wheel has been moved to position: %d. \n", ifwPosition); // Print new position
+      retVal = SendOrder2QHYCCDCFW(pCamHandle, &order, (int)fwPosition);          // Send order to filter wheel to move to new position
+      printf("Filter wheel has been moved to position: %d. \n", (int)fwPosition); // Print new position
     }
   }
   
