@@ -30,6 +30,10 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
   // Open Camera
   qhyccd_handle *pCamHandle = OpenQHYCCD(camId);
 
+  // Set ReadMode
+  retVal = SetQHYCCDReadMode(pCamHandle, readMode);
+  printf("Camera readmode set to %d.\n", readMode);
+
   // Set Single Frame Mode (mode = 0)
   retVal = SetQHYCCDStreamMode(pCamHandle, 0);
 
@@ -40,10 +44,6 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
   printf(" \n");
   printf("Connecting to QHY Camera.\n");
   printf("QHY Camera initialized successfully. \n");
-
-  // Set ReadMode
-  retVal = SetQHYCCDReadMode(pCamHandle, readMode);
-  printf("Camera readmode set to %d.\n", readMode);
 
   // Set USB Traffic Setting
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_USBTRAFFIC, USB_TRAFFIC);
