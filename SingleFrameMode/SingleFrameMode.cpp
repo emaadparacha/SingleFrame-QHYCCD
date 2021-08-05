@@ -89,7 +89,6 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
     @param gainSetting Gain setting to set camera to
     @param offsetSetting Offset setting to set camera to
     @param exposureTime Exposure time
-  @return Sets gain, offset, and exposure time
 */
 void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSetting, int offsetSetting,
                       double exposureTime)
@@ -114,7 +113,6 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSe
     @param pCamHandle Camera handle
     @param tempSetting Temperature to set camera to
     @param tempError Temperature setting error range
-  @return Sets the sensor temperature within the specified error range
 */
 void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double tempSetting, double tempError)
 {
@@ -184,7 +182,6 @@ void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double 
     @param retVal Return value
     @param pCamHandle Camera handle
     @param fwPosition Filter wheel position to move to
-  @return Sets the filter wheel position if filter wheel is connected
 */
 void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, char fwPosition)
 {
@@ -245,7 +242,6 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, cha
     @param tempSetting Temperature to set camera to
     @param readMode Camera readmode
     @param savePath Path to save image to
-  @return Takes an image and saves a .fits file to disk with the settings in the filename
 */
 void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX,
                   unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int gainSetting,
@@ -321,7 +317,6 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
     @brief Closes camera and releases SDK resource
     @param retVal Return value
     @param pCamHandle Camera handle
-  @return Closes camera and releases SDK resource
 */
 void QuickExit(unsigned int retVal, qhyccd_handle *pCamHandle)
 {
