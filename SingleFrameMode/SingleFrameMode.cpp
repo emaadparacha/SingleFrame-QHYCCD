@@ -361,9 +361,9 @@ int main(int argc, char *argv[])
   int sampleGains[] = {56};    // List of gain settings to loop over
   int sampleOffsets[] = {20};  // List of offset setings to loop over
   double sampleTemps[] = {20}; // List of temperatures to loop over (in Celsius)
-  double sampleExps[] = {1};   // List of exposure times to loop over (in seconds)
+  double sampleExps[] = {15};   // List of exposure times to loop over (in seconds)
   int howManyTimesToRun = 1;   // How many times to take pictures at each unique setting
-  double tempError = 0.2;      // Temperature regulation error range
+  double tempError = 0.1;      // Temperature regulation error range
   char fwPosition = '0';       // Set this to the filter wheel position you want (between 0 and 6)
 
   int totalNumberOfFiles = sizeof(sampleTemps) / sizeof(sampleTemps[0]) * sizeof(sampleOffsets) / sizeof(sampleOffsets[0]) * sizeof(sampleGains) / sizeof(sampleGains[0]) * sizeof(sampleExps) / sizeof(sampleExps[0]) * howManyTimesToRun; // How many images will be taken
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
           int offsetSetting = sampleOffsets[o];                       // Offset Setting
           double tempSetting = sampleTemps[t];                        // Temperature of Camera
           int runTimes = howManyTimesToRun;                           // How Many Pictures To Get
-          string savePath = "/home/emaad/Documents/Images/newImages"; // Path to save image with first part of image name at the end
+          string savePath = "/home/emaad/Documents/Images/powerDrawThree"; // Path to save image with first part of image name at the end
 
           // Operate filter wheel
           QuickFilterWheelControl(retVal, pCamHandle, fwPosition);
@@ -414,6 +414,8 @@ int main(int argc, char *argv[])
       }
     }
   }
+
+  retVal = SetQHYCCDParam(pCamHandle,CONTROL_MANULPWM,0);
 
   // Close camera and release SDK resources
   QuickExit(retVal, pCamHandle);
