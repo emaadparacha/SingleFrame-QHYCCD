@@ -2,3 +2,4 @@ SingleFrameMode/SingleFrameMode
 WaitingSingleFrameMode/SingleFrameMode
 *.o*
 *.DS_Store*
+*.vscode*
