@@ -1,5 +1,3 @@
-
 SingleFrameMode/SingleFrameMode
-SingleFrameMode/SingleFrameMode.o
 WaitingSingleFrameMode/SingleFrameMode
-WaitingSingleFrameMode/SingleFrameMode.o
+*.o*
