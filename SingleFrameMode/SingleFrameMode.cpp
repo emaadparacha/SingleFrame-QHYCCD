@@ -55,6 +55,8 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
   printf(" \n");
   printf("Connecting to QHY Camera.\n");
   printf("QHY Camera initialized successfully. \n");
+  printf("This is camera ID: %s \n", camId); // To print camera ID
+
 
   printf(" \n");
 
@@ -253,9 +255,6 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
   // Single Frame
   retVal = ExpQHYCCDSingleFrame(pCamHandle);
 
-  // Sleep for 1s
-  sleep(1);
-
   // Image Data Variable
   unsigned char *pImgData = 0;
 
@@ -263,6 +262,8 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
   uint32_t length = GetQHYCCDMemLength(pCamHandle);
   pImgData = new unsigned char[length];
   memset(pImgData, 0, length);
+
+  printf("Buffer length = %d.\n", length); 
 
   // Take Single Frame
   retVal = GetQHYCCDSingleFrame(pCamHandle, &roiSizeX, &roiSizeY, &bpp, &channels, pImgData);
@@ -357,13 +358,16 @@ int main(int argc, char *argv[])
   // Initialize the camera and set initial settings
   qhyccd_handle *pCamHandle = QuickInitialize(retVal, USB_TRAFFIC, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
 
+  retVal = SetQHYCCDParam(pCamHandle,CONTROL_MANULPWM,0);
+
+
   // The List of All Variables -- SET THESE TO TAKE IMAGES
   int sampleGains[] = {56};    // List of gain settings to loop over
   int sampleOffsets[] = {20};  // List of offset setings to loop over
-  double sampleTemps[] = {20}; // List of temperatures to loop over (in Celsius)
-  double sampleExps[] = {15};   // List of exposure times to loop over (in seconds)
+  double sampleTemps[] = {18}; // List of temperatures to loop over (in Celsius)
+  double sampleExps[] = {10};   // List of exposure times to loop over (in seconds)
   int howManyTimesToRun = 1;   // How many times to take pictures at each unique setting
-  double tempError = 0.1;      // Temperature regulation error range
+  double tempError = 0.3;      // Temperature regulation error range
   char fwPosition = '0';       // Set this to the filter wheel position you want (between 0 and 6)
 
   int totalNumberOfFiles = sizeof(sampleTemps) / sizeof(sampleTemps[0]) * sizeof(sampleOffsets) / sizeof(sampleOffsets[0]) * sizeof(sampleGains) / sizeof(sampleGains[0]) * sizeof(sampleExps) / sizeof(sampleExps[0]) * howManyTimesToRun; // How many images will be taken
@@ -384,7 +388,7 @@ int main(int argc, char *argv[])
           int offsetSetting = sampleOffsets[o];                       // Offset Setting
           double tempSetting = sampleTemps[t];                        // Temperature of Camera
           int runTimes = howManyTimesToRun;                           // How Many Pictures To Get
-          string savePath = "/home/emaad/Documents/Images/powerDrawThree"; // Path to save image with first part of image name at the end
+          string savePath = "/home/emaad/Documents/Images/qhyImg"; // Path to save image with first part of image name at the end
 
           // Operate filter wheel
           QuickFilterWheelControl(retVal, pCamHandle, fwPosition);
@@ -415,7 +419,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  retVal = SetQHYCCDParam(pCamHandle,CONTROL_MANULPWM,0);
+  //retVal = SetQHYCCDParam(pCamHandle,CONTROL_MANULPWM,0);
 
   // Close camera and release SDK resources
   QuickExit(retVal, pCamHandle);
