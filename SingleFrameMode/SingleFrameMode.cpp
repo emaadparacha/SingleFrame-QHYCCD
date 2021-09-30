@@ -185,37 +185,56 @@ void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double 
     @param pCamHandle Camera handle
     @param fwPosition Filter wheel position to move to
 */
-void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, char fwPosition)
+void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int fwPos)
 {
   retVal = IsQHYCCDCFWPlugged(pCamHandle); // Check if filter wheel is plugged in
+
+  char fwPosition = '0' + fwPos;
 
   // If filter wheel is plugged in
   if (retVal == QHYCCD_SUCCESS)
   {
-    char status[64];
+    char status[64] = {0};
     retVal = GetQHYCCDCFWStatus(pCamHandle, status);                          // Get current position
-    printf("Filter wheel is plugged in and is at position: %c. \n", *status); // Print current position
+    printf("Filter wheel is plugged in and is at position: %s. \n", status); // Print current position
 
     // Compare if the filter wheel is at the position we want it to be
-    if (*status != fwPosition)
-    {
+    if (status[0] != fwPosition)
+    {      
       retVal = SendOrder2QHYCCDCFW(pCamHandle, &fwPosition, 1);         // Send order to filter wheel to move to new position
       printf("Filter wheel is moving to position: %c. \n", fwPosition); // Print that the filter wheel is moving
+    
+      // Check if filter wheel is moving
+      retVal = GetQHYCCDCFWStatus(pCamHandle, status);
+
+      // If filter wheel needs to go to position 0 (slot 1)
+      if (status[0] == fwPosition) 
+      {
+        int sleeper = 0; // To print progress on screen
+
+        while (sleeper < 11)
+        {
+          sleep(1); // Sleep for 1 second
+          printf("Filter wheel is still moving.\n");
+          sleeper++; // Add onto sleeper
+        }
+      }
+      else 
+      {
+        // While camera is moving
+        while (fwPosition != status[0])
+        {
+          sleep(1); // Sleep for 1 second
+          retVal = GetQHYCCDCFWStatus(pCamHandle, status); // Check status again
+          printf("Filter wheel is still moving.\n");
+        }
+      }
+
+      // Print final position of filter wheel
+      printf("Filter wheel has been moved to position: %c. \n", fwPosition); // Print new position
+    
     }
-
-    // Check if filter wheel is moving
-    retVal = GetQHYCCDCFWStatus(pCamHandle, status);
-
-    // While camera is moving
-    while (fwPosition != status[0])
-    {
-      retVal = GetQHYCCDCFWStatus(pCamHandle, status); // Check status again
-      sleep(2);                                        // Sleep for 2 seconds
-    }
-
-    // Print final position of filter wheel
-    printf("Filter wheel has been moved to position: %c. \n", fwPosition); // Print new position
-  }
+ }
 
   // If filter wheel is not detected
   else
@@ -368,7 +387,7 @@ int main(int argc, char *argv[])
   double sampleExps[] = {10};   // List of exposure times to loop over (in seconds)
   int howManyTimesToRun = 1;   // How many times to take pictures at each unique setting
   double tempError = 0.3;      // Temperature regulation error range
-  char fwPosition = '0';       // Set this to the filter wheel position you want (between 0 and 6)
+  int fwPosition = 0;       // Set this to the filter wheel position you want (between 0 and 6)
 
   int totalNumberOfFiles = sizeof(sampleTemps) / sizeof(sampleTemps[0]) * sizeof(sampleOffsets) / sizeof(sampleOffsets[0]) * sizeof(sampleGains) / sizeof(sampleGains[0]) * sizeof(sampleExps) / sizeof(sampleExps[0]) * howManyTimesToRun; // How many images will be taken
 
