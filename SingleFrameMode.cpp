@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
           int offsetSetting = sampleOffsets[o];                       // Offset Setting
           double tempSetting = sampleTemps[t];                        // Temperature of Camera
           int runTimes = howManyTimesToRun;                           // How Many Pictures To Get
-          string savePath = "/home/emaad/Documents/Images/qhyImg"; // Path to save image with first part of image name at the end
+          string savePath = "/home/user/Documents/Images/qhyImg"; // Path to save image with first part of image name at the end
 
           // Operate filter wheel
           QuickFilterWheelControl(retVal, pCamHandle, fwPosition);
