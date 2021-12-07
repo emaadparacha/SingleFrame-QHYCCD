@@ -6,7 +6,6 @@
  *
  *
  * @author Emaad Paracha
- * Contact: emaad@emaadparacha.com
  *
  */
 
