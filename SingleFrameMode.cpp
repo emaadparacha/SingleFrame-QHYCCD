@@ -383,6 +383,16 @@ int main(int argc, char *argv[])
   // Initialize SDK
   unsigned int retVal = InitQHYCCDResource();
 
+  // Check if SDK resources were initialized
+  if (retVal == QHYCCD_SUCCESS) {
+      printf("SDK resources initialized successfully .\n");
+      printf("\n");
+  }
+  else {
+      printf("SDK resources could not be initialized. Error: %d. Program will now exit. \n", retVal);
+      return 1;
+  }
+
   // Initialize the camera and set initial settings
   qhyccd_handle *pCamHandle = QuickInitialize(retVal, USB_TRAFFIC, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
 
