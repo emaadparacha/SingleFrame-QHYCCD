@@ -311,24 +311,26 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int
   if (retVal == QHYCCD_SUCCESS)
   {
     char status[64] = {0};
-    retVal = GetQHYCCDCFWStatus(pCamHandle, status);                         // Get current position
+    retVal = GetQHYCCDCFWStatus(pCamHandle, status); // Get current position
     if (retVal == QHYCCD_SUCCESS)
     {
       printf("Filter wheel is plugged in and is at position: %s. \n", status); // Print current position
     }
-    else {
+    else
+    {
       printf("Could not get filter wheel status. Error: %d.\n", retVal); // Print error
     }
 
     // Compare if the filter wheel is at the position we want it to be
     if (status[0] != fwPosition)
     {
-      retVal = SendOrder2QHYCCDCFW(pCamHandle, &fwPosition, 1);         // Send order to filter wheel to move to new position
+      retVal = SendOrder2QHYCCDCFW(pCamHandle, &fwPosition, 1); // Send order to filter wheel to move to new position
       if (retVal == QHYCCD_SUCCESS)
       {
         printf("Filter wheel is moving to position: %c. \n", fwPosition); // Print that the filter wheel is moving
       }
-      else {
+      else
+      {
         printf("Could not move filter wheel. Error: %d.\n", retVal); // Print error
       }
 
@@ -362,7 +364,7 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int
           {
             printf("Could not get filter wheel status. Error: %d.\n", retVal); // Print error
           }
-          else 
+          else
           {
             printf("Filter wheel is still moving.\n"); // Print that the filter wheel is still moving
           }
@@ -432,7 +434,8 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
   {
     printf("Successfully got image of size: %dx%d.\n", roiSizeX, roiSizeY);
   }
-  else {
+  else
+  {
     printf("Could not grab image data from camera. Error: %d. \n", retVal);
   }
 
@@ -518,7 +521,7 @@ void QuickExit(unsigned int retVal, qhyccd_handle *pCamHandle)
     printf("Could not release SDK resources. Error: %d. Program will now exit.\n", retVal);
     exit(1);
   }
-  
+
   printf("Goodbye! Please visit us again.\n");
 }
 
