@@ -627,9 +627,6 @@ int main(int argc, char *argv[])
     }
   }
 
-  // Turn off cooler after image capturing is complete
-  // retVal = SetQHYCCDParam(pCamHandle,CONTROL_MANULPWM,0);
-
   // Close camera and release SDK resources
   CamExit(retVal, pCamHandle);
 
