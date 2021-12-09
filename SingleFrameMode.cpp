@@ -1,7 +1,7 @@
 /**
  * @file SingleFrameMode.cpp
  *
- * @brief C++ Program to take a single frame from a QHYCCD camera. 
+ * @brief C++ Program to take a single frame from a QHYCCD camera.
  * The program loops over different temperature, offset, gain, and exposure settings to take multiple pictures in one go.
  *
  * @author Emaad Paracha
@@ -46,21 +46,74 @@ using namespace std;
 qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned int roiStartX, unsigned int roiStartY,
                                unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
 {
+  // Check number of cameras connected
+  int numCams = ScanQHYCCD();
+  if (numCams > 0)
+  {
+    printf("Number of QHYCCD cameras found: %d. \n", numCams);
+    printf("\n");
+  }
+  else
+  {
+    printf("No QHYCCD camera found. Please check USB or power.\n");
+    exit(1);
+  }
+
   // Get Camera ID
   char camId[32];
   retVal = GetQHYCCDId(0, camId);
 
+  // Check if we could get camera ID
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Got Camera ID successfully. ID is %s .\n", camId);
+    printf("\n");
+  }
+  else
+  {
+    printf("Could not get camera ID. Error: %d. Program will now exit. \n", retVal);
+    exit(1);
+  }
+
   // Open Camera
   qhyccd_handle *pCamHandle = OpenQHYCCD(camId);
 
+  // Check if we could open the camera
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Camera opened successfully.\n");
+    printf("\n");
+  }
+  else
+  {
+    printf("Could not open camera. Error: %d. Program will now exit. \n", retVal);
+    exit(1);
+  }
+
   // Set ReadMode
   retVal = SetQHYCCDReadMode(pCamHandle, readMode);
+  if (retVal != QHYCCD_SUCCESS)
+  {
+    printf("Could not set read mode. Error: %d. Program will now exit. \n", retVal);
+    exit(1);
+  }
 
   // Set Single Frame Mode (mode = 0)
   retVal = SetQHYCCDStreamMode(pCamHandle, 0);
+  if (retVal != QHYCCD_SUCCESS)
+  {
+    printf("Could not set stream mode. Error: %d. Program will now exit. \n", retVal);
+    exit(1);
+  }
 
   // Initialize Camera
   retVal = InitQHYCCD(pCamHandle);
+  if (retVal != QHYCCD_SUCCESS)
+  {
+    printf("Could not initialize camera. Error: %d. Program will now exit. \n", retVal);
+    exit(1);
+  }
+
   printf(" \n");
   printf("Hello! Welcome to the QHY Imaging Centre.\n");
   printf(" \n");
@@ -74,19 +127,47 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
 
   // Set USB Traffic Setting
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_USBTRAFFIC, USB_TRAFFIC);
-  printf("USB traffic set to %d.\n", USB_TRAFFIC);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("USB traffic set to %d.\n", USB_TRAFFIC);
+  }
+  else
+  {
+    printf("Could not set USB traffic setting. Error: %d.\n", retVal);
+  }
 
   // Set Image Resolution
   retVal = SetQHYCCDResolution(pCamHandle, roiStartX, roiStartY, roiSizeX, roiSizeY);
-  printf("Image resolution set to %dx%d.\n", roiSizeX, roiSizeY);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Image resolution set to %dx%d.\n", roiSizeX, roiSizeY);
+  }
+  else
+  {
+    printf("Could not set the image resolution. Error: %d.\n", retVal);
+  }
 
   // Set Binning mode
   retVal = SetQHYCCDBinMode(pCamHandle, camBinX, camBinY);
-  printf("Binning mode set to %dx%d.\n", camBinX, camBinY);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Binning mode set to %dx%d.\n", camBinX, camBinY);
+  }
+  else
+  {
+    printf("Could not set the binning mode. Error: %d.\n", retVal);
+  }
 
   // Set Bit Resolution
   retVal = SetQHYCCDBitsMode(pCamHandle, 16);
-  printf("Camera bit resolution set to %d.\n", 16);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Camera bit resolution set to %d.\n", 16);
+  }
+  else
+  {
+    printf("Could not set the bit resolution. Error: %d.\n", retVal);
+  }
 
   printf(" \n");
 
@@ -107,15 +188,36 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSe
 {
   // Set Gain Setting
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_GAIN, gainSetting);
-  printf("Gain set to %d.\n", gainSetting);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Gain set to %d.\n", gainSetting);
+  }
+  else
+  {
+    printf("Could not set the gain setting. Error: %d.\n", retVal);
+  }
 
   // Set Offset
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_OFFSET, offsetSetting);
-  printf("Offset set to %d.\n", offsetSetting);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Offset set to %d.\n", offsetSetting);
+  }
+  else
+  {
+    printf("Could not set the offset setting. Error: %d.\n", retVal);
+  }
 
   // Set Exposure Time
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_EXPOSURE, exposureTime);
-  printf("Exposure set to %.6f seconds. \n", exposureTime / 1000000);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Exposure set to %.6f seconds. \n", exposureTime / 1000000);
+  }
+  else
+  {
+    printf("Could not set the exposure time. Error: %d.\n", retVal);
+  }
 }
 
 /**
@@ -136,6 +238,10 @@ void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double 
 
   // Set Temperature to the temperature setting we want
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_COOLER, tempSetting);
+  if (retVal != QHYCCD_SUCCESS)
+  {
+    printf("Could not set the temperature. Error: %d.\n", retVal);
+  }
 
   // Get cooler PWM value
   double pwmValue = GetQHYCCDParam(pCamHandle, CONTROL_CURPWM);
@@ -206,16 +312,32 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int
   {
     char status[64] = {0};
     retVal = GetQHYCCDCFWStatus(pCamHandle, status);                         // Get current position
-    printf("Filter wheel is plugged in and is at position: %s. \n", status); // Print current position
+    if (retVal == QHYCCD_SUCCESS)
+    {
+      printf("Filter wheel is plugged in and is at position: %s. \n", status); // Print current position
+    }
+    else {
+      printf("Could not get filter wheel status. Error: %d.\n", retVal); // Print error
+    }
 
     // Compare if the filter wheel is at the position we want it to be
     if (status[0] != fwPosition)
     {
       retVal = SendOrder2QHYCCDCFW(pCamHandle, &fwPosition, 1);         // Send order to filter wheel to move to new position
-      printf("Filter wheel is moving to position: %c. \n", fwPosition); // Print that the filter wheel is moving
+      if (retVal == QHYCCD_SUCCESS)
+      {
+        printf("Filter wheel is moving to position: %c. \n", fwPosition); // Print that the filter wheel is moving
+      }
+      else {
+        printf("Could not move filter wheel. Error: %d.\n", retVal); // Print error
+      }
 
       // Check if filter wheel is moving
       retVal = GetQHYCCDCFWStatus(pCamHandle, status);
+      if (retVal != QHYCCD_SUCCESS)
+      {
+        printf("Could not get filter wheel status. Error: %d.\n", retVal); // Print error
+      }
 
       // If filter wheel needs to go to position 0 (slot 1)
       if (status[0] == fwPosition)
@@ -229,14 +351,21 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int
           sleeper++; // Add onto sleeper
         }
       }
-      else
+      else // If filter wheel needs to go to any other position
       {
         // While camera is moving
         while (fwPosition != status[0])
         {
           sleep(1);                                        // Sleep for 1 second
           retVal = GetQHYCCDCFWStatus(pCamHandle, status); // Check status again
-          printf("Filter wheel is still moving.\n");
+          if (retVal != QHYCCD_SUCCESS)
+          {
+            printf("Could not get filter wheel status. Error: %d.\n", retVal); // Print error
+          }
+          else 
+          {
+            printf("Filter wheel is still moving.\n"); // Print that the filter wheel is still moving
+          }
         }
       }
 
@@ -282,6 +411,10 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
 
   // Single Frame
   retVal = ExpQHYCCDSingleFrame(pCamHandle);
+  if (retVal != QHYCCD_SUCCESS)
+  {
+    printf("Could not start exposure. Error: %d. \n", retVal);
+  }
 
   // Image Data Variable
   unsigned char *pImgData = 0;
@@ -295,7 +428,13 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
 
   // Take Single Frame
   retVal = GetQHYCCDSingleFrame(pCamHandle, &roiSizeX, &roiSizeY, &bpp, &channels, pImgData);
-  printf("Successfully got image of size: %dx%d.\n", roiSizeX, roiSizeY);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Successfully got image of size: %dx%d.\n", roiSizeX, roiSizeY);
+  }
+  else {
+    printf("Could not grab image data from camera. Error: %d. \n", retVal);
+  }
 
   // Image Processing to .fits file
 
@@ -339,6 +478,14 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
 
   // Cancel Exposing and Readout
   retVal = CancelQHYCCDExposingAndReadout(pCamHandle);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Exposure and readout cancelled successfully.\n");
+  }
+  else
+  {
+    printf("Could not cancel exposure and readout. Error: %d. \n", retVal);
+  }
 }
 
 /**
@@ -351,9 +498,27 @@ void QuickExit(unsigned int retVal, qhyccd_handle *pCamHandle)
 {
   // Close Camera Handle
   retVal = CloseQHYCCD(pCamHandle);
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("Camera handle closed successfully. \n");
+  }
+  else
+  {
+    printf("Could not close camera handle. Error: %d. \n", retVal);
+  }
 
   // Release SDK Resources
   retVal = ReleaseQHYCCDResource();
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("SDK resources released successfully. \n");
+  }
+  else
+  {
+    printf("Could not release SDK resources. Error: %d. Program will now exit.\n", retVal);
+    exit(1);
+  }
+  
   printf("Goodbye! Please visit us again.\n");
 }
 
@@ -378,19 +543,21 @@ int main(int argc, char *argv[])
   int USB_TRAFFIC = 10;         // USB Traffic
   unsigned int bpp = 16;        // Bit Depth of Image
   int readMode = 1;             // ReadMode
-  const int SECOND = 1000000;   // Constant to multiply exposure time with
+  const int SECOND = 1000000;   // Constant to multiply exposure time with, since QHY600M takes microseconds
 
   // Initialize SDK
   unsigned int retVal = InitQHYCCDResource();
 
   // Check if SDK resources were initialized
-  if (retVal == QHYCCD_SUCCESS) {
-      printf("SDK resources initialized successfully .\n");
-      printf("\n");
+  if (retVal == QHYCCD_SUCCESS)
+  {
+    printf("SDK resources initialized successfully .\n");
+    printf("\n");
   }
-  else {
-      printf("SDK resources could not be initialized. Error: %d. Program will now exit. \n", retVal);
-      return 1;
+  else
+  {
+    printf("SDK resources could not be initialized. Error: %d. Program will now exit. \n", retVal);
+    exit(1);
   }
 
   // Initialize the camera and set initial settings
