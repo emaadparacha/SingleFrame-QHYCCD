@@ -30,7 +30,7 @@ using namespace std;
 //=============================================
 
 /**
-  @fn qhyccd_handle QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
+  @fn qhyccd_handle CamInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
     @brief Initialize the camera, set the readmode, image resolution, binning mode, and bit resolution, and return the camera handle
     @param retVal Return value
     @param USB_TRAFFIC USB traffic value
@@ -43,7 +43,7 @@ using namespace std;
     @param readMode Camera readmode
   @return Return QHY camera handle and set readmode, image resolution, binning mode, and bit resolution
 */
-qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned int roiStartX, unsigned int roiStartY,
+qhyccd_handle *CamInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned int roiStartX, unsigned int roiStartY,
                                unsigned int roiSizeX, unsigned int roiSizeY, int camBinX, int camBinY, int readMode)
 {
   // Check number of cameras connected
@@ -175,7 +175,7 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
 }
 
 /**
-  @fn void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSetting, int offsetSetting, double exposureTime)
+  @fn void CamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSetting, int offsetSetting, double exposureTime)
     @brief Sets the gain, offset, and exposure time of the camera
     @param retVal Return value
     @param pCamHandle Camera handle
@@ -183,7 +183,7 @@ qhyccd_handle *QuickInitialize(unsigned int retVal, int USB_TRAFFIC, unsigned in
     @param offsetSetting Offset setting to set camera to
     @param exposureTime Exposure time
 */
-void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSetting, int offsetSetting,
+void CamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSetting, int offsetSetting,
                       double exposureTime)
 {
   // Set Gain Setting
@@ -221,14 +221,14 @@ void QuickCamSettings(unsigned int retVal, qhyccd_handle *pCamHandle, int gainSe
 }
 
 /**
-  @fn void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double tempSetting, double tempError)
+  @fn void TempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double tempSetting, double tempError)
     @brief Sets the temperature of the camera sensor within the specified temperature error range
     @param retVal Return value
     @param pCamHandle Camera handle
     @param tempSetting Temperature to set camera to
     @param tempError Temperature setting error range
 */
-void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double tempSetting, double tempError)
+void TempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double tempSetting, double tempError)
 {
 
   printf(" \n"); // Print new line
@@ -296,13 +296,13 @@ void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double 
 }
 
 /**
-  @fn void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, char fwPosition)
+  @fn void FilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, char fwPosition)
     @brief Checks if a filter wheel is connected and if so, moves the filter wheel to the requested position
     @param retVal Return value
     @param pCamHandle Camera handle
     @param fwPosition Filter wheel position to move to
 */
-void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int fwPos)
+void FilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int fwPos)
 {
   retVal = IsQHYCCDCFWPlugged(pCamHandle); // Check if filter wheel is plugged in
 
@@ -387,7 +387,7 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int
 }
 
 /**
-  @fn void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int gainSetting, int offsetSetting, double exposureTime, double tempSetting, int readMode, string savePath)
+  @fn void CamCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX, unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int gainSetting, int offsetSetting, double exposureTime, double tempSetting, int readMode, string savePath)
     @brief Takes an image and saves a .fits file to disk with the settings in the filename
     @param retVal Return value
     @param pCamHandle Camera handle
@@ -405,7 +405,7 @@ void QuickFilterWheelControl(unsigned int retVal, qhyccd_handle *pCamHandle, int
     @param readMode Camera readmode
     @param savePath Path to save image to
 */
-void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX,
+void CamCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, int runner, unsigned int roiStartX,
                   unsigned int roiStartY, unsigned int roiSizeX, unsigned int roiSizeY, unsigned int bpp, int gainSetting,
                   int offsetSetting, double exposureTime, double tempSetting, int readMode, string savePath)
 {
@@ -493,12 +493,12 @@ void QuickCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, 
 }
 
 /**
-  @fn void QuickExit(unsigned int retVal, qhyccd_handle *pCamHandle)
+  @fn void CamExit(unsigned int retVal, qhyccd_handle *pCamHandle)
     @brief Closes camera and releases SDK resource
     @param retVal Return value
     @param pCamHandle Camera handle
 */
-void QuickExit(unsigned int retVal, qhyccd_handle *pCamHandle)
+void CamExit(unsigned int retVal, qhyccd_handle *pCamHandle)
 {
   // Close Camera Handle
   retVal = CloseQHYCCD(pCamHandle);
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
   }
 
   // Initialize the camera and set initial settings
-  qhyccd_handle *pCamHandle = QuickInitialize(retVal, USB_TRAFFIC, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
+  qhyccd_handle *pCamHandle = CamInitialize(retVal, USB_TRAFFIC, roiStartX, roiStartY, roiSizeX, roiSizeY, camBinX, camBinY, readMode);
 
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_MANULPWM, 0);
 
@@ -599,25 +599,25 @@ int main(int argc, char *argv[])
           string savePath = "/home/user/Documents/Images/qhyImg"; // Path to save image with first part of image name at the end
 
           // Operate filter wheel
-          QuickFilterWheelControl(retVal, pCamHandle, fwPosition);
+          FilterWheelControl(retVal, pCamHandle, fwPosition);
 
           // Set camera settings
-          QuickCamSettings(retVal, pCamHandle, gainSetting, offsetSetting, exposureTime);
+          CamSettings(retVal, pCamHandle, gainSetting, offsetSetting, exposureTime);
 
           // Set and regulate temperature
-          QuickTempRegulation(retVal, pCamHandle, tempSetting, tempError);
+          TempRegulation(retVal, pCamHandle, tempSetting, tempError);
 
           // Loop to take multiple pictures
           for (int runner = 0; runner < runTimes; runner++)
           {
             // Set and regulate temperature again
-            QuickTempRegulation(retVal, pCamHandle, tempSetting, tempError);
+            TempRegulation(retVal, pCamHandle, tempSetting, tempError);
 
             // Print which image is being taken
             printf("Taking image %d of %d images... \n", takingImage, totalNumberOfFiles);
 
             // Take the picture and save it
-            QuickCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, gainSetting, offsetSetting, exposureTime, tempSetting, readMode, savePath);
+            CamCapture(retVal, pCamHandle, runTimes, runner, roiStartX, roiStartY, roiSizeX, roiSizeY, bpp, gainSetting, offsetSetting, exposureTime, tempSetting, readMode, savePath);
 
             // Increment takingImage
             takingImage++;
@@ -631,7 +631,7 @@ int main(int argc, char *argv[])
   // retVal = SetQHYCCDParam(pCamHandle,CONTROL_MANULPWM,0);
 
   // Close camera and release SDK resources
-  QuickExit(retVal, pCamHandle);
+  CamExit(retVal, pCamHandle);
 
   // Exit
   return 0;
