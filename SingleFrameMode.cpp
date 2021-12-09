@@ -241,6 +241,7 @@ void QuickTempRegulation(unsigned int retVal, qhyccd_handle *pCamHandle, double 
   if (retVal != QHYCCD_SUCCESS)
   {
     printf("Could not set the temperature. Error: %d.\n", retVal);
+    return; // Return if we could not set the temperature
   }
 
   // Get cooler PWM value
