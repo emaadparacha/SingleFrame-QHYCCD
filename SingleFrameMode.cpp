@@ -449,7 +449,7 @@ void CamCapture(unsigned int retVal, qhyccd_handle *pCamHandle, int runTimes, in
   long curUnixTime = time(0);
 
   // Naming:
-  string fitname = savePath + "_" + to_string(curUnixTime) + "_exp_" + to_string((int)exposureTime) + "us_gain_" + to_string(gainSetting) + "_offset_" + to_string(offsetSetting) + "_temp_" + to_string((int)tempSetting) + "_" + to_string(runner) + +".fits";
+  string fitname = savePath + "_" + to_string(curUnixTime) + "_exp_" + to_string((int)exposureTime) + "us_gain_" + to_string(gainSetting) + "_offset_" + to_string(offsetSetting) + "_temp_" + to_string((int)tempSetting) + "_" + to_string(runner) + ".fits";
   const char *fitsfilename = fitname.c_str();
 
   // Remove if exists already
@@ -570,13 +570,13 @@ int main(int argc, char *argv[])
   retVal = SetQHYCCDParam(pCamHandle, CONTROL_MANULPWM, 0);
 
   // The List of All Variables -- SET THESE TO TAKE IMAGES
-  int sampleGains[] = {56};    // List of gain settings to loop over
-  int sampleOffsets[] = {20};  // List of offset setings to loop over
-  double sampleTemps[] = {18}; // List of temperatures to loop over (in Celsius)
-  double sampleExps[] = {10};  // List of exposure times to loop over (in seconds)
-  int howManyTimesToRun = 1;   // How many times to take pictures at each unique setting
+  int sampleGains[] = {56,60};    // List of gain settings to loop over
+  int sampleOffsets[] = {20,40};  // List of offset setings to loop over
+  double sampleTemps[] = {18,20}; // List of temperatures to loop over (in Celsius)
+  double sampleExps[] = {5,10};  // List of exposure times to loop over (in seconds)
+  int howManyTimesToRun = 2;   // How many times to take pictures at each unique setting
   double tempError = 0.3;      // Temperature regulation error range
-  int fwPosition = 0;          // Set this to the filter wheel position you want (between 0 and 6)
+  int fwPosition = 2;          // Set this to the filter wheel position you want (between 0 and 6)
 
   int totalNumberOfFiles = sizeof(sampleTemps) / sizeof(sampleTemps[0]) * sizeof(sampleOffsets) / sizeof(sampleOffsets[0]) * sizeof(sampleGains) / sizeof(sampleGains[0]) * sizeof(sampleExps) / sizeof(sampleExps[0]) * howManyTimesToRun; // How many images will be taken
 
