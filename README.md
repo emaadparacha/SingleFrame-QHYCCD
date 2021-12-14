@@ -1,6 +1,6 @@
 # SingleFrame-QHYCCD
 
-C++ program to take a single frame from a QHYCCD camera. The program loops over different temperature, offset, gain, and exposure settings to take multiple pictures in one go.
+C++ program to take a single frame from a [QHYCCD](http://qhyccd.com/) camera. The program loops over different temperature, offset, gain, and exposure settings to take multiple pictures in one go.
 
 ## Dependencies
 * [QHYCCD SDK](https://www.qhyccd.com/html/prepub/log_en.html)
