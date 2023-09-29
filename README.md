@@ -30,6 +30,7 @@ Any changes made to `SingleFrameMode.cpp` after compilation would require a `mak
 
 ## Things to look out for
 * This program was written for a QHY600M camera, therefore several variables are defaulted to that camera (such as `roiSizeX` and `roiSizeY`). If you are using a different QHYCCD camera, please change them accordingly.
+* Appending onto the above note, [there may be some functions that may not work on other cameras that do on the QHY600M, such as setting read mode.](https://github.com/emaadparacha/SingleFrame-QHYCCD/issues/1) Please comment those lines accordingly.
 * The QHY600M camera takes exposure time input in microseconds. Therefore, there is a constant declared `const int SECOND = 1000000` to have user input in seconds for ease of usage. This can be changed accordingly if needed.
 * The `savePath` parameter should be changed to where you want to save the image. The last part of the `savePath` string is the image name prefix (currently set to `qhyImg`. Each image name starts with this.
 * The image names are of the format `qhyImg_(Unix Time)_exp_(exposure time)_us_gain_(gain setting)_offset_(offset setting)_temp_(temperature)_(which iteration of the image).fits`. This is to allow for uniqueness and sorting ease.
