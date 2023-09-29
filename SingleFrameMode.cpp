@@ -21,6 +21,9 @@
 
 using namespace std;
 
+// !!Important!! -- These functions were tested with the QHY600 camera, some functions may not work properly with other QHYCCD cameras. 
+// Please comment out relevant functions accordingly
+
 //=============================================
 //=============================================
 //=================|---------|=================
